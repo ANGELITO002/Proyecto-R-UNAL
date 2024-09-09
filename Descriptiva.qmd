@@ -1,0 +1,361 @@
+---
+title: "Descriptiva"
+format: html
+editor: visual
+---
+
+# Estadística Descriptiva
+
+Vamos a iniciar con la estadística descriptiva para V.A's numéricas.
+
+## Gráficos para Variables numéricas continuas
+
+Vamos a usar a función hist para realizar el histograma.
+
+```{r pesos}
+pesos=c(303.37, 301.02, 292.24, 300.30, 299.94, 291.24, 297.93, 306.81, 303.49, 302.12,
+292.82, 297.89, 296.84, 301.09, 303.95, 289.44, 296.99, 310.30, 296.80, 302.50,
+305.99, 301.16, 305.53, 305.02, 303.21, 310.32, 294.25, 299.62, 306.27, 293.37)
+hist(pesos,main = "Histograma Pesos Ceibas")
+
+###
+
+hist(pesos,freq=FALSE,prob=TRUE,col = "lightblue",main='Histograma de pesos de Ceibas',xlab='Toneladas',ylab='Densidad')
+lines(density(pesos),col = "chocolate3")
+
+hist(Pesos_Alturas_Diametros$Pesos)
+hist(Pesos_Alturas_Diametros$Alturas)
+hist(Pesos_Alturas_Diametros$Diametros)
+
+```
+
+**Ejercicio:** Use la base en BaseEjemplo.xlsx, y haga el histograma de frecuencias para las V.A's numéricas.
+
+```{r Hist Discreta}
+library(ggplot2)
+num_nidos<-c(9,  6,  7,  7,  6,  9,  7,  3,  4,  6,  6,  6,  8,  2,  7,  3,  5,  5,  4,  7,  4,  9,  7,  8,  8,  2, 12, 10,  4,  7)
+discreta<-as.data.frame(num_nidos)
+ggplot(discreta,aes(num_nidos))+geom_bar()
+library(arm)
+arm::discrete.histogram(discreta$num_nidos)
+
+###
+ggplot(Pesos_Alturas_Diametros,aes(Num_Nidos))+geom_bar()
+arm::discrete.histogram(Pesos_Alturas_Diametros$Num_Nidos)
+```
+
+**Ejercicio:** Use la base en BaseEjemplo.xlsx, y haga el histograma de frecuencias para las V.A's numéricas discretas.
+
+## Variables Categóricas
+
+```{r categoricas}
+dolencias=c("O","O","N","J","C","F","B","B","F","O","J","O","O","O","F","F","O","O",
+"N","O","N","J","F","J","B","O","C","J","O","J","J","F","N","O","B","M","O","J","M","O","B",
+"O","F",  "J",  "O",  "O",  "B",  "N",  "C",  "O",  "O",  "O","M",  "B","F","J",  "O",  "F",  "N")
+Tabladolencias=table(dolencias)
+barplot(Tabladolencias)
+Tabladolencias
+
+###Proporciones
+
+Tabladolencias_prop=Tabladolencias/sum(Tabladolencias)
+Tabladolencias_prop
+
+```
+
+**Tarea:** *Use la información en la base BaseEjemplo.xlsx y realice los gráficos de barras para las V.A's categóricas.*
+
+# Medidas de Resumen
+
+```{r Medidas de Resumen pesos}
+
+media_pesos<-mean(pesos) #Media
+media_pesos
+mediana_pesos<-quantile(pesos,probs = 0.5) #Mediana
+mediana_pesos
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+moda_pesos<-getmode(pesos) ###Moda
+moda_pesos
+
+
+
+media_diametros<-mean(Pesos_Alturas_Diametros$Diametros)
+media_diametros
+```
+
+```{r grafica con medidas}
+hist(pesos,col = "white")
+abline(v=c(media_pesos,mediana_pesos,moda_pesos),col=c("red","blue","green"))
+legend("topleft", legend = c("Media", "Mediana", "Moda"), col = c("red", "blue", "green"), lty = 1, lwd = 2,cex = 0.5)
+
+```
+
+```{r media ponderada}
+library(readxl)
+
+Gastos_pond<-read_excel("Ponderada.xlsx",sheet = "Ejemplo")
+
+med_pond=(sum(Gastos_pond$Gasto*Gastos_pond$Exposicion))/(sum(Gastos_pond$Exposicion))
+med_pond ##Media ponderada
+mean(Gastos_pond$Gasto)  ##Media aritmética
+```
+
+**Tarea:** Realizar la misma experiencia para los datos de la hoja ejercicio del archivo Ponderada.xlsx.
+
+## Cuantiles
+
+Recordemos que los cuantiles de la distribución se definen como:
+
+Sea $\alpha$ un número entre 0 y 1. El percentil $(100 \alpha)$ o cuantil $(\alpha)$ de la distribución de una V.A. continua $X$, denotado por $\eta(\alpha)$ o $x_{\alpha}$, está definido como un valor que toma la V.A (valor posible de la V.A) tal que satisface
+
+$$\alpha=F(\eta(\alpha))=F(x_{\alpha})=\int_{-\infty}^{x_{\alpha}}f(y)\cdot dy.$$
+
+Los cuantiles representan son valores que toma la V.A, tal que satisface que ese valor deja un cierta probabilidad acumulada de $\alpha.$
+
+```{r cuantiles}
+quantile(pesos,probs = c(0.10)) ###Percentil 10 o cuantil 0.10
+quantile(pesos,probs = c(0.95))###Percentil 95 o cuantil 0.95
+
+
+quantile(pesos,probs = c(0.10,0.95,0.75,0.25))
+```
+
+**Cómo se interpretan estos valores?**
+
+**Tarea:** *Realizar el cálculo de los cuantiles de las otras variables asociadas a las ceibas.*
+
+# Box-Plot
+
+```{r Box-Plot}
+library(plotly)
+fig <- plot_ly(y = pesos, type = "box")
+fig  ##Vertical
+fig_1 <- plot_ly(x = pesos, type = "box")
+fig_1 ##Horizontal
+
+
+fig_1 <- fig_1 %>% add_boxplot(x = pesos, jitter = 0.3, pointpos = -1.8, boxpoints = 'all',
+              marker = list(color = 'rgb(7,40,89)'),
+              line = list(color = 'rgb(7,40,89)'),
+              name = "All Points")
+fig_1
+```
+
+```{r Boxplot}
+boxplot(pesos)
+boxplot(pesos,horizontal = TRUE)
+```
+
+```{r Box_Plot Base Ejemplo}
+BaseEjemplo <- read_excel("BaseEjemplo.xlsx")
+fig_gasto <- plot_ly(y = BaseEjemplo$gastosemanal, type = "box")
+fig_gasto <- fig_gasto %>% add_boxplot(y = BaseEjemplo$gastosemanal, jitter = 0.3, pointpos = -1.8, boxpoints = 'all',
+              marker = list(color = 'rgb(7,40,89)'),
+              line = list(color = 'rgb(7,40,89)'),
+              name = "All Points")
+fig_gasto
+```
+
+**Ejercicio:** *Realizar los gráficos de cajas para las otras variable medidas a las ceibas.*
+
+# Medidas de dispersión o variabilidad, asimetría y sesgo
+
+```{r dispersion}
+library(sjstats)
+library(moments)
+
+sjstats::cv(pesos) ##Coeficiente de variación es útil, cuando la variable es la misma, pero es hecha en unidades diferentes.
+sd(pesos) ###Desviación estándar
+sd(pesos)^2 ###Varianza
+max(pesos)-min(pesos) ##Rango
+
+skewness(pesos) ###Asimetría
+
+kurtosis(pesos)###Coeficiente de apuntamiento o curtosis, permite ver si tiene colas mas pesadas que la de la distribución normal(el cual es 3 de forma teórica)
+
+```
+
+**Ejemplo:** Note que en algunas base datos existen variables categóricas que nos pueden definir grupos y pueden permitir hacer comparaciones entre esos grupos. Veamos algunos ejemplos:
+
+```{r Comparacion}
+library(plotly)
+library(readxl)
+Base_EncHog2022<-read_excel("EncHog2022.xlsx",col_types = c("text", "text", "numeric", "numeric", "text", "numeric", "numeric", "numeric"))
+str(Base_EncHog2022)
+
+##Calculo de la media para el grupo de los que si tienen contrato
+Base_EncHog2022%>%filter(Contrato_lab=="1")%>%select(Gan_Neta)%>%summarise(media_Gan_Neta = mean(Gan_Neta, na.rm = TRUE))
+
+filtrado_si_contrato_Gan_Neta<-Base_EncHog2022%>%filter(Contrato_lab=="1")%>%select(Gan_Neta)
+
+##Histograma Creado directamente
+Base_EncHog2022%>%filter(Contrato_lab=="1")%>%select(Gan_Neta)%>%ggplot(aes(x=Gan_Neta)) + 
+  geom_histogram(color="black", fill="white")
+
+histogram_plot <- plot_ly(data = filtrado_si_contrato_Gan_Neta, x = ~Gan_Neta, type = "histogram") %>%
+  layout(title = "Histograma de Gan_Neta",
+         xaxis = list(title = "Gan_Neta"),
+         yaxis = list(title = "Frecuencia"))
+
+# Mostrar el histograma
+histogram_plot
+
+# Crear el boxplot interactivo
+boxplot_plot <- plot_ly(data = filtrado_si_contrato_Gan_Neta, x = ~Gan_Neta, type = "box") %>%
+  layout(title = "Boxplot de Gan_Neta",
+         yaxis = list(title = "Gan_Neta"))
+
+# Mostrar el boxplot
+boxplot_plot
+
+##Boxplot Creado directamente
+Base_EncHog2022%>%filter(Contrato_lab=="1")%>%select(Gan_Neta)%>%ggplot(aes(x=Gan_Neta)) + 
+  geom_boxplot(outlier.colour="blue", outlier.shape=16,
+             outlier.size=2)
+
+```
+
+**Ejercicio:** *Hacer lo mismo con los que no tiene contrato.*
+
+## Explorando relaciones entre variable numéricas
+
+En muchas ocasiones es importante saber si dos variable numéricas tiene algún tipo de relación. La forma gráfica inicla para explorar la relación entre variables es través de un gráfico de dispersión.
+
+Veamos un ejemplo, supongamos que tenemos las variables relacionadas con las ceibas, peso y altura. El gráfico se construye de tal forma que los valores emparejados de las variables $(x_i ,y_i)$ se dibujan en un plano cartesiano, usualmente se supone que la variable independiente es la variable($X$), mientras que la variable dependiente es la variable ($Y$).
+
+```{r peso y altura ceibas}
+library("tidyverse")
+Ceibas<-read_excel("Pesos_Alturas_Diametros.xlsx")
+str(Ceibas)
+colnames(Ceibas)
+##Diagrama de dispersión
+Ceibas%>%select(Pesos,Alturas)%>%ggplot(aes(x = Alturas, y = Pesos)) +
+  geom_point() +  # Crear puntos para el diagrama de dispersión
+  labs(title = "Diagrama de Dispersión: Pesos vs. Alturas",
+       x = "Pesos",
+       y = "Alturas")
+```
+
+Asociado con el diagrama de existe una medida de asociación **Lineal** entre las variable aletorias conocido como coeficiente de correlación de Pearson:
+
+$$r = \frac{\text{cov}(X, Y)}{s_X \times s_Y}$$ donde $$\text{cov}(X, Y) = \frac{\sum_{i=1}^n (x_i - \bar{X})(y_i - \bar{Y})}{n-1}$$ miesntras que:
+
+$$s_X = \sqrt{\frac{\sum_{i=1}^n (x_i - \bar{X})^2}{n-1}}$$ $$s_Y= \sqrt{\frac{\sum_{i=1}^n (y_i - \bar{Y})^2}{n-1}}$$
+
+Si el coeficiente de correlación $r\approx 0$ diremos que no hay asociación estadística lineal.
+
+Si el coeficiente de correlación $r\approx 1$ diremos que hay asociación estadística lineal directa.
+
+Si el coeficiente de correlación $r\approx -1$ diremos que hay asociación estadística lineal inversa.
+
+```{r correlación de Pearson}
+cor(Ceibas%>%select(Pesos,Alturas))
+```
+
+**Qué otras medidas de asociación hay? Tarea**
+
+**Ejercicio:** *Use la base EncHog2022.xlsx y realice un gráfico de dispersión con INGLABO y Horas_Trab_Sem , junto con Gan_Neta para explorara las relaciones, sin filtrar y filtrando por la variable Contrato_lab.*
+
+**Ejercicios de simulación**
+
+Vamos a experimentar con datos simulados(artificiales) para explorara relaciones
+
+```{r simulación 1}
+
+####Relación Lineal 
+
+long=100
+a=1
+b=-2
+x_simul<-rnorm(long,0,1)
+y_simul<-a+b*x_simul+rnorm(long,0,1)
+plot(x_simul,y_simul,pch=20,main="Relación Lineal")
+cor(x_simul,y_simul)
+
+###Relación Cuadrática
+
+
+long=100
+a=1
+b=4
+x_simul<-rnorm(long,0,1)
+y_simul<-a-b*x_simul^2+rnorm(long,0,1)
+plot(x_simul,y_simul,pch=20,main="Relación Cuadrática")
+cor(x_simul,y_simul)
+
+
+#####Relación Polinomial Cúbica
+c=5
+d=2
+long=100
+a=1
+b=2
+x_simul<-rnorm(long,0,1)
+y_simul<-a+b*x_simul+c*x_simul^2+d*x_simul^3+rnorm(long,0,1)
+plot(x_simul,y_simul,pch=20,main="Relación Polinomial")
+cor(x_simul,y_simul)
+
+#####Relación exponencial
+
+long=100
+a=1
+b=5
+x_simul<-rnorm(long,0,1)
+y_simul<-a+exp(-b*x_simul)+rnorm(long,0,1)
+plot(x_simul,y_simul,pch=20,main="Relación Exponencial")
+cor(x_simul,y_simul)
+
+
+#####Relación sinusoidal
+
+long=100
+a=1
+b=2
+x_simul<-rnorm(long,0,1)
+y_simul<-a+sin(2*pi*x_simul/b)+rnorm(long,0,1)
+plot(x_simul,y_simul,pch=20,main="Relación Sinusoidal")
+cor(x_simul,y_simul)
+
+
+### No relación(Independencia)
+
+long=100
+a=1
+
+x_simul<-rnorm(long,0,1)
+y_simul<-a +rnorm(long,0,1)
+plot(x_simul,y_simul,pch=20,main="No Relación")
+cor(x_simul,y_simul)
+
+
+```
+
+**Tablas Cruzadas de Variables Categóricas**
+
+Se puede usar Tablas cruzadas para explorar relaciones entre variable categóricas, pero es mas complejo.
+
+Una medida de la asociación entre variable categóricas es la V de Cramer, la cual mide que tan fuerte es la asociación. Más específicamente es el efecto del tamaño(**ES**) de la prueba de independencia chi-cuadrado(**La cual será vista mas adelante.**).
+
+| **Effect size (ES)** | **Interpretation**                                                                                           |
+|:---------------------|:-------------------------------------------------------------------------------------------------------------|
+| ES ≤ 0.2             | The result is weak. Although the result is statistically significant, the fields are only weakly associated. |
+| 0.2 \< ES ≤ 0.6      | The result is moderate. The fields are moderately associated.                                                |
+| ES \> 0.6            | The result is strong. The fields are strongly associated.                                                    |
+
+Ejemplo, Usemos la base Base_Ejemplo.xslx y veamos la tabla cruzada para las dos variable categóricas y su respectivo efecto del tamaño.
+
+```{r Categóricas}
+library('rcompanion')
+Base_ejemplo<- read_excel("BaseEjemplo.xlsx")
+str(Base_ejemplo)
+Base_ejemplo%>%select(Genero,marcacel)
+
+table(Base_ejemplo%>%select(Genero,marcacel))
+
+cramerV(Base_ejemplo$Genero, Base_ejemplo$marcacel, bias.correct = FALSE)
+```
+
+Qué otras medidas hay para la asociación de datos categóricos?

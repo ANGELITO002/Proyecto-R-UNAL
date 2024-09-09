@@ -1,0 +1,228 @@
+---
+title: "PROYECTO_ESTADISTICA"
+format: html
+editor: visual
+---
+
+-   ***Base de datos***
+
+```{r}
+library(readxl)
+Transporte_Universitarios_UN <- read_excel("C:/Users/Juana/Desktop/Proyecto R/Transporte_Universitarios_UN.xlsx", 
+    col_types = c("text", "numeric", "text", 
+        "text", "numeric", "numeric", "text"))
+View(Transporte_Universitarios_UN)
+
+```
+
+-    **Variables Numéricas Continuas**
+
+```{r}
+hist(Transporte_Universitarios_UN$GASTO_SEM, 
+     freq = FALSE,
+     col = "lightblue", 
+     main = "Histograma con Densidad",
+     xlab = "Gasto Semanal")
+
+# línea de densidad
+lines(density(Transporte_Universitarios_UN$GASTO_SEM, na.rm = TRUE), col = "chocolate3")
+```
+
+```{r}
+# Histograma para el número de viajes diarios
+hist(Transporte_Universitarios_UN$NUM_VIAJES_DIA, main = "Histograma del Número de Viajes Diarios",
+     xlab = "Viajes por Día",
+     col = "lightgreen")
+
+# línea de densidad
+lines(density(Transporte_Universitarios_UN$NUM_VIAJES_DIA, na.rm = TRUE), 
+      col = "chocolate3")
+
+```
+
+-   **Variables Discretas**
+
+```{r}
+#localidades
+tabla_localidad <- table(Transporte_Universitarios_UN$LOCALIDAD)
+
+#  gráfico de barras
+barplot(tabla_localidad, 
+        main = "Distribución de Localidades",
+        col = "pink")
+
+```
+
+```{r}
+#Tipo de transporte
+tabla_Transporte <- table(Transporte_Universitarios_UN$TIPO_TRANS)
+
+#grafico
+barplot(tabla_Transporte, 
+        main = "tipo de trasporte usado",
+        col= "pink")
+```
+
+-   **Medidas Resumen**
+
+```{r}
+##GASTO SEMANAL
+# Media
+media_gasto <- mean(Transporte_Universitarios_UN$GASTO_SEM, 
+                    na.rm = TRUE) 
+media_gasto
+
+# Mediana
+mediana_gasto <- median(Transporte_Universitarios_UN$GASTO_SEM, 
+                        na.rm = TRUE)
+mediana_gasto
+
+# Función para calcular la moda
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+# Calcular la moda
+moda_gasto <- getmode(Transporte_Universitarios_UN$GASTO_SEM)
+moda_gasto
+
+```
+
+```{r}
+## Viajes
+# Media
+media_viajes <- mean(Transporte_Universitarios_UN$NUM_VIAJES_DIA, 
+                    na.rm = TRUE) 
+media_viajes
+
+# Mediana
+mediana_viajes <- median(Transporte_Universitarios_UN$NUM_VIAJES_DIA
+                         ,  na.rm = TRUE)
+mediana_viajes
+
+# Función para calcular la moda
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+# Calcular la moda
+moda_viajes <- getmode(Transporte_Universitarios_UN$NUM_VIAJES_DIA)
+moda_viajes
+
+###GAFICA
+
+# Historama
+hist(Transporte_Universitarios_UN$NUM_VIAJES_DIA, 
+     col = "lightblue", 
+     main = "Distribución de Viajes Diarios",
+     xlab = "Número de Viajes por Día",
+     border = "black")
+
+# Agregar líneas para la media, mediana y moda
+abline(v = c(media_viajes, mediana_viajes, moda_viajes), 
+       col = c("red", "blue", "green"), 
+       lwd = 2)
+
+# leyenda 
+legend("topright", 
+       legend = c("Media", "Mediana", "Moda"), 
+       col = c("red", "blue", "green"), 
+       lty = 1, 
+       lwd = 2, 
+       cex = 0.8)
+
+```
+
+```{r}
+#  datos
+library(readxl)
+Transporte_Universitarios_UN <- read_excel("Transporte_Universitarios_UN.xlsx", sheet = "Datos de movilidad")
+
+# Calcular la media ponderada de GASTO_SEM ponderada por NUM_VIAJES_DIA
+med_pond <- (sum(Transporte_Universitarios_UN$GASTO_SEM * Transporte_Universitarios_UN$NUM_VIAJES_DIA)) / 
+            sum(Transporte_Universitarios_UN$NUM_VIAJES_DIA)
+
+med_pond
+
+mean(Transporte_Universitarios_UN$GASTO_SEM)  
+
+```
+
+-   **cuantiles**
+
+```{r}
+library(readxl)
+Transporte_Universitarios_UN <- read_excel("Transporte_Universitarios_UN.xlsx", sheet = "Datos de movilidad")
+
+# Calcular los cuantiles para el gasto semanal 
+#  (Cuantil 0.10)
+quantile(Transporte_Universitarios_UN$GASTO_SEM, probs = c(0.10))
+
+# (Cuantil 0.95)
+quantile(Transporte_Universitarios_UN$GASTO_SEM, probs = c(0.95))
+
+# Varios cuantiles a la vez
+quantile(Transporte_Universitarios_UN$GASTO_SEM, probs = c(0.10, 0.25, 0.75, 0.95))
+```
+
+***Boxplot del dato Gasto Semanal***
+
+```{r}
+# Usamos plotly para generar un box-plot interactivo
+library(plotly)
+
+
+# Box-plot vertical para el gasto semanal
+fig_gasto <- plot_ly(y = Transporte_Universitarios_UN$GASTO_SEM, type = "box")
+fig_gasto  
+
+# Box-plot horizontal
+fig_gasto_hor <- plot_ly(x = Transporte_Universitarios_UN$GASTO_SEM, type = "box")
+fig_gasto_hor 
+
+# Box-plot con puntos (TODOS)
+fig_gasto_puntos <- fig_gasto %>%
+  add_boxplot(y = Transporte_Universitarios_UN$GASTO_SEM, 
+              jitter = 0.3, pointpos = -1.8, boxpoints = 'all',
+              marker = list(color = 'rgb(7,40,89)'),
+              line = list(color = 'rgb(7,40,89)'),
+              name = "Todos los puntos")
+fig_gasto_puntos
+
+```
+
+```{r}
+
+# Filtrar los datos por género
+gasto_mujeres <- Transporte_Universitarios_UN$GENERO %>% filter(GENERO == "F") %>% select(GASTO_SEM)
+gasto_hombres <- Transporte_Universitarios_UN %>% filter(GENERO == "M") %>% select(GASTO_SEM)
+
+# Calcular la media de gasto para cada grupo
+media_gasto_mujeres <- mean(gasto_mujeres$GASTO_SEM, na.rm = TRUE)
+media_gasto_hombres <- mean(gasto_hombres$GASTO_SEM, na.rm = TRUE)
+
+media_gasto_mujeres  
+media_gasto_hombres  
+
+#histograma gasto semanal de mujeres
+ggplot(gasto_mujeres, aes(x = GASTO_SEM)) + 
+  geom_histogram(color = "black", fill = "lightblue") + 
+  ggtitle("Histograma del Gasto Semanal para Mujeres") +
+  xlab("Gasto Semanal") + ylab("Frecuencia")
+
+#histograma gasto semanal de hombres
+ggplot(gasto_hombres, aes(x = GASTO_SEM)) + 
+  geom_histogram(color = "black", fill = "lightgreen") + 
+  ggtitle("Histograma del Gasto Semanal para Hombres") +
+  xlab("Gasto Semanal") + ylab("Frecuencia")
+
+# Crear boxplot interactivo comparando ambos géneros
+gasto_genero <- Transporte_Universitarios_UN %>% select(GENERO, GASTO_SEM)
+boxplot_comparativo <- plot_ly(data = gasto_genero, x = ~GENERO, y = ~GASTO_SEM, type = "box") %>%
+  layout(title = "Boxplot Comparativo del Gasto Semanal por Género", yaxis = list(title = "Gasto Semanal"))
+
+boxplot_comparativo  # Mostrar boxplot comparativo
+
+```
