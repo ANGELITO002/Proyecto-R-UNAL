@@ -218,11 +218,11 @@ ggplot(gasto_hombres, aes(x = GASTO_SEM)) +
   ggtitle("Histograma del Gasto Semanal para Hombres") +
   xlab("Gasto Semanal") + ylab("Frecuencia")
 
-# Crear boxplot interactivo comparando ambos géneros
+#boxplot interactivo comparando ambos géneros
 gasto_genero <- Transporte_Universitarios_UN %>% select(GENERO, GASTO_SEM)
 boxplot_comparativo <- plot_ly(data = gasto_genero, x = ~GENERO, y = ~GASTO_SEM, type = "box") %>%
   layout(title = "Boxplot Comparativo del Gasto Semanal por Género", yaxis = list(title = "Gasto Semanal"))
 
-boxplot_comparativo  # Mostrar boxplot comparativo
+boxplot_comparativo 
 
 ```
